@@ -1,0 +1,19 @@
+syntax="proto3";
+option go_package = "github.com/Ayikoandrew/ap/msg";
+
+import "google/protobuf/timestamp.proto";
+
+message CalculatePayment{
+    int64 PaymentID = 1;
+    double Amount = 2;
+    string Currency = 3;
+    google.protobuf.Timestamp Timestamp = 4;
+}
+
+message ProcessPayment{
+    int64 PaymentID = 1;
+    double InitialPayment =2;
+    double ProcessPayment = 3;
+    string Status = 4;
+    google.protobuf.Timestamp Timestamp = 5;
+}

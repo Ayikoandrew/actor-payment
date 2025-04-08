@@ -1,0 +1,25 @@
+syntax="proto3";
+
+option go_package = "github.com/Ayikoandrew/ap/msg";
+
+message PublicPayment {
+    int64 AccountID = 1;
+    double Amount = 2;
+}
+
+message PrivatePayment {
+    int64 AccountID = 1;
+    double Amount = 2;
+}
+
+message Subscription {
+    int64 AccountID = 1;
+    double Amount = 2;
+    int32 Period = 3;
+}
+
+message Error {
+    int64 AccountID = 1;
+    string Reason = 2;
+}
+
