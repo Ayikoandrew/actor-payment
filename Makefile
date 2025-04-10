@@ -1,8 +1,15 @@
 run: build
-	@./bin/ap
+	@./bin/broker & ./bin/processor
 
 build:
-	@go build -o ./bin/ap
+	@mkdir -p ./bin ./tmp
+	@go build -o ./bin/broker ./broker/main.go
+	@go build -o ./bin/processor ./cmd/processor/main.go
+	@cp ./bin/broker ./tmp/broker
+	@cp ./bin/processor ./tmp/processor
+
+dev:
+	@docker compose down && docker compose up --build
 
 test:
 	@go test -v ./...
