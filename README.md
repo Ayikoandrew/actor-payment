@@ -21,3 +21,15 @@ To run the program, follow these steps:
     ```bash
     go run cmd/processor/main.go
     ```
+
+    ## Quick Start
+
+    To run the application using Docker:
+
+    ```bash
+    make dev
+    ```
+
+    This command will:
+    1. Build a Docker image
+    2. Start a container with all necessary services
