@@ -55,27 +55,49 @@ func (dp *DatabaseProcessor) Receive(ctx *actor.Context) {
 }
 
 func (dp *DatabaseProcessor) OnInit(ctx *actor.Context) {
-	//postgres://username:password@localhost/payments?sslmode=disable
-	host := os.Getenv("DBHOST")
-	port := os.Getenv("DBPORT")
-	name := os.Getenv("DBNAME")
-	password := os.Getenv("DBPASSWORD")
-	user := os.Getenv("DBUSER")
-	sslmode := os.Getenv("SSLMODE")
+	connStr := os.Getenv("DATABASE_URL")
+	if connStr == "" {
 
-	fmt.Printf("Host %+v\n", host)
-	fmt.Printf("Port %+v\n", port)
+		host := os.Getenv("DBHOST")
+		if host == "" {
+			host = "actor-payment"
+		}
+		port := os.Getenv("DBPORT")
+		if port == "" {
+			port = os.Getenv("DB_PORT")
+		}
+		name := os.Getenv("DBNAME")
+		if name == "" {
+			name = os.Getenv("POSTGRES_DB")
+		}
+		password := os.Getenv("DBPASSWORD")
+		if password == "" {
+			password = os.Getenv("POSTGRES_PASSWORD")
+		}
+		user := os.Getenv("DBUSER")
+		if user == "" {
+			user = os.Getenv("POSTGRES_USER")
+		}
+		sslmode := os.Getenv("SSLMODE")
+		if sslmode == "" {
+			sslmode = "disable"
+		}
 
-	if host == "" || port == "" || name == "" || password == "" || user == "" {
-		fmt.Println("Missing configurations")
-		return
-	}
-	if sslmode == "" {
-		sslmode = "disable"
+		// Log found/missing values for debugging
+		fmt.Printf("Host %+v\n", host)
+		fmt.Printf("Port %+v\n", port)
+
+		if host == "" || port == "" || name == "" || password == "" || user == "" {
+			fmt.Println("Missing configurations")
+			return
+		}
+
+		connStr = fmt.Sprintf("host=%s port=%v dbname=%s password=%s user=%s sslmode=%s",
+			host, port, name, password, user, sslmode)
 	}
 
 	var err error
-	connStr := fmt.Sprintf("host=%s port=%v dbname=%s password=%s user=%s sslmode=%s", host, port, name, password, user, sslmode)
+
 	d, err := sql.Open("postgres", connStr)
 	if err != nil {
 		fmt.Printf("[Database Processor] error opening the database %+v\n", err)
@@ -112,8 +134,12 @@ func (dp *DatabaseProcessor) OnInit(ctx *actor.Context) {
 
 func (dp *DatabaseProcessor) OnStop(ctx *actor.Context) {
 	fmt.Println("[Database Processor] closing database connection")
-	if err := dp.db.Close(); err != nil {
-		fmt.Printf("[Database Processor] error closing database connection: %+v", err)
+	if dp.db != nil {
+		if err := dp.db.Close(); err != nil {
+			fmt.Printf("[Database Processor] error closing database connection: %+v", err)
+		}
+	} else {
+		fmt.Println("[Database Processor] no database connection to close")
 	}
 	fmt.Println("[Database Processor] initialization complete")
 }
